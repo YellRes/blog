@@ -98,9 +98,8 @@ const server = http.createServer((req, res) => {
 #### 有vue-router查看具体路由页面
 
 我们考虑有路由的情况
-##### 路由非懒加载
 
-这种情况简单，当请求的url非首页(index.html)时，我们强制重定向到首页。
+当请求的url非首页(index.html)时，我们强制重定向到首页。
 ```node
 // 添加代码
 const isRouteRequest = (uri) => {
@@ -132,6 +131,5 @@ const server = http.createServer((req, res) => {
 ![localhost:3000/#/about](./asset/router-about.png)
 
 
-
-
-##### 路由懒加载
+参考链接：
+- [http-server-spa](https://www.npmjs.com/package/http-server-spa?activeTab=code)
