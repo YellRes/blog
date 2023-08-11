@@ -68,15 +68,15 @@ const emits = defineEmits(["update:modelValue"]);
 
 const keyword = ref("");
 const keywordInfo = ref({});
-watchEffect(() => {
-  keyword.value = keywordInfo.value.originStr;
-  emits("update:modelValue", keywordInfo.value);
-});
+
 const handleInput = useDebounceFn((val) => {
   keywordInfo.value = {
     originStr: val,
     uppercase: val.toUpperCase(),
   };
+
+  keyword.value = keywordInfo.value.originStr;
+  emits("update:modelValue", keywordInfo.value);
 }, 500);
 </script>
 ```
@@ -88,17 +88,64 @@ const handleInput = useDebounceFn((val) => {
 1. 输入框已经输入值后，但是表单不为空的检验依旧出现。
 2. 当我置空输入框的时候，本该出现的表单验证却没有出现。
 
-先说结论： `TrickyComponent` 中使用了`@vueuse/core`(版本9.13.0)中的防抖函数`useDebounceFn`，但是这个`useDebounceFn`默认的事件触发是在触发行为的结束时，但此时表单验证已经执行了，执行时候还是拿了之前的值做了表单验证。解决办法时：使用`lodash-es`中的`debounce`，代码如下：
+先说结论： `TrickyComponent` 内部`el-input`组件监听了`input`事件()
+```html
+  <!-- TrickyComponent -->
+  <el-input @input="handleInput" v-model.trim="keyword" />
+```
 
+其中`handleInput`使用了`@vueuse/core`(版本9.13.0)中的防抖函数`useDebounceFn`
 ```javascript
-const handleInput = debounce((val) => {
+const handleInput = useDebounceFn((val) => {
   keywordInfo.value = {
     originStr: val,
     uppercase: val.toUpperCase(),
   };
-}, 500, 
-{
-  leading: true,
-  trailing: false
+}, 500);
+```
+
+但是这个`useDebounceFn`触发时机是最后一次`input`行为后的500ms，此时keyWordInfo会被更新。但是与此同时`el-input`输入值的时候会触发`change`事件，然后会触发表单的校验，由于`change`事件的触发没有使用`useDebounceFn`包装，此时`change`事件中获取的值还不是更新的值。导致表单校验的值获取错误。
+
+解决办法：
+1. 表单规则中取消`change`事件的触发条件，监听`formValue.strInfo`值的变化来触发表单验证。
+
+```javascript
+// 表单验证
+const rules = reactive({
+  uppercase: [
+    {
+      required: true,
+      message: "请填写内容",
+      trigger: ["blur"],
+    },
+  ],
 });
+
+watchEffect(() => {
+  if (!formValue.strInfo.init) {
+    const { originStr, uppercase } = formValue.strInfo;
+    formValue.uppercase = uppercase;
+    formValue.originStr = originStr;
+    // 去除页面初始化的验证
+    formRef.value?.validateField("uppercase");
+  }
+});
+```
+
+## element-plus 源码部分
+
+### el-input 校验部分
+```javascript
+const elForm = inject(elFormKey, undefined)
+const elFormItem = inject(elFormItemKey, undefined)
+
+watch(
+  () => props.modelValue,
+  () => {
+    nextTick(resizeTextarea)
+    if (props.validateEvent) {
+      elFormItem?.validate?.('change')
+    }
+  }
+)
 ```
