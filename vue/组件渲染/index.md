@@ -1,4 +1,4 @@
-# vue组件渲染和react组件渲染的区别
+# vue组件渲染
 
 [案例代码](https://codesandbox.io/s/laughing-wright-hfjgqt?file=/src/App.vue)
 
