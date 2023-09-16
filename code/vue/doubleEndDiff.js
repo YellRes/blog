@@ -7,7 +7,7 @@
  * 如何修改arr 使得arr变成arr2的数据
  *
  */
-
+const patch = () => {};
 const doubleEndDiff = (n1, n2, container) => {
   const oldChildren = n1.children;
   const newChildren = n2.children;
@@ -19,11 +19,33 @@ const doubleEndDiff = (n1, n2, container) => {
   let newEndIdx = newChildren.length;
 
   // 依次从[oldStartId, oldEndIdx] 和 [newStartIdx, newEndIdx] 各取出一个值进行比较
+  // 每次遍历完 [oldStartId, oldEndIdx] 和 [newStartIdx, newEndIdx] 区间外的真实dom位置已经固定
   while (oldStartIdx <= oldEndIdx && newStartIdx <= newEndIdx) {
-    if (oldChildren[oldStartIdx].key === newChildren[newStartIdx].key) {
+    // 当前节点已经被处理过
+    if (!oldChildren[oldStartIdx]) {
+      oldStartIdx++;
+    } else if (!oldChildren[oldEndIdx]) {
+      oldEndIdx--;
+    } else if (oldChildren[oldStartIdx].key === newChildren[newStartIdx].key) {
+      patch(oldChildren[oldStartIdx], newChildren[newStartIdx]);
+      oldStartIdx++;
+      newStartIdx++;
     } else if (oldChildren[oldEndIdx].key === newChildren[newEndIdx].key) {
+      patch(oldChildren[oldEndIdx], newChildren[newEndIdx]);
+      oldEndIdx--;
+      newEndIdx--;
     } else if (oldChildren[oldStartIdx].key === newChildren[newEndIdx].key) {
+      patch(oldChildren[oldStartIdx], newChildren[newEndIdx]);
+      insertAfter(oldChildren[oldEndIdx], oldChildren[oldStartIdx].el);
+      oldStartIdx++;
+      newEndIdx--;
     } else if (oldChildren[oldEndIdx].key === newChildren[newStartIdx].key) {
+      patch(oldChildren[oldEndIdx], newChildren[newStartIdx]);
+      // 把当前节点放到 开始节点的前面
+      insertBefore(oldChildren[oldEndIdx], oldChildren[oldStartIdx]);
+      // insert();
+      oldEndIdx--;
+      newEndIdx++;
     } else {
       const idxInOld = oldChildren.findIndex(
         (item) => item.key === newChildren[newStartIdx].key
@@ -38,6 +60,17 @@ const doubleEndDiff = (n1, n2, container) => {
       } else {
         // 节点是新增的
       }
+    }
+  }
+
+  // 判断是否有新增节点 和 删除的节点
+  if (oldStartIdx > oldEndIdx && newStartIdx <= newEndIdx) {
+    for (let i = newStartIdx; i <= newEndIdx; i++) {
+      // 新增newChildren[i] 对应的真实节点  到dom结尾
+    }
+  } else if (oldStartIdx <= oldEndIdx && newStartIdx > newEndIdx) {
+    for (let i = oldStartIdx; i <= oldEndIdx; i++) {
+      // 删除oldChildren[i] 对应的节点
     }
   }
 };

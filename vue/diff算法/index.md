@@ -11,4 +11,15 @@ oldChildren
 
 ### 有key情况
 node上面有key时候，我们知道哪些真实dom时可以复用的。
-> 复用从dom层面是指：可以不用被销毁，我们直接修改下dom的属性即可。
+> 复用从dom层面是指：可以不用被销毁，我们直接修改下dom的属性，然后移动dom的位置。
+
+1. 设置全局变量maxIndex 遍历newChildren
+2. 当前的newChildren[i] 是否能在oldChildren中找到
+   1. 找到则记录当前在oldChildren位置的索引，判断当前index是否大于全局的maxIndex
+      1. 若大于maxIndex，则将maxIndex设置为当前index
+      2. 若小于maxIndex，则移动newChildren[i].el到原有dom的最后
+   2. 没找到，则直接在dom上新增dom
+3. 遍历oldChildren，查找oldChildren[i]在newChildren中是否存在
+   1. 不存在的话随即删除对应的真实dom
+
+关键点：全局变量maxIndex，通过判断当前节点在oldChildren的index和maxIndex的关系。用来判断dom节点位置的移动。
