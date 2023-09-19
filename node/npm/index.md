@@ -1,5 +1,28 @@
 # npm 相关
 
+## npm 安装包时候的规则
+有一个包结构 A{B,C}, B{C}, C{D}, npm安装的结构如下：
+```html
+A
++-- B
++-- C
++-- D
+```
+
+A，B依赖的C没有版本冲突，D包直接被提升到最高一层。
+
+对于 A{B,C}, B{C,D@1}, C{D@2}, 这个安装的结构如下:
+```html
+A
++-- B
++-- C
+   `-- D@2
++-- D@1
+```
+
+B依赖的D@1被提升到最高一层，C依赖的D@2安装到自己的node_modules中。
+
+
 ## npm 报错
 
 ###  Conflicting peer dependency: 系列
