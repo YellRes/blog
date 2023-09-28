@@ -18,7 +18,6 @@ mkdir chrome-extension && cd chrome-extension && npm init -y
   "action": {
     "default_popup": "popup.html"
   },
-  "options_page": "options.html",
   "content_scripts": [
     {
       "matches": ["http://*/*", "https://*/*", "<all_urls>"],
@@ -27,6 +26,7 @@ mkdir chrome-extension && cd chrome-extension && npm init -y
   ],
   "permissions": ["storage"]
 }
+
 
 ```
 
@@ -102,8 +102,8 @@ import babel from "@rollup/plugin-babel";
 
 /** @type {import('rollup').RollupOptions} */
 export default {
-  // 当前入口 popover.tsx
-  input: ["src/popover/popover.tsx"],
+  // 当前入口 popup.tsx
+  input: ["src/popup/popup.tsx"],
   output: {
     dir: "./dist",
     entryFileNames: "[name].js",
@@ -140,11 +140,209 @@ export default {
 }
 ```
 
-这边执行命令`npm run dev`, 可以看到dist目录下生成了popover.js文件。
+这边执行命令`npm run dev`, 可以看到dist目录下生成了popup.js文件。
 
 ![打包结果](./assets/tsxTojs.png)
 
-此时js生成了，但我们最终需要的是popup.html文件。
+此时js生成了，但我们最终需要的是popup.html文件。rollup现在只能把我们的popup.tsx转换成popup.js，现在要生成一个popup.html，它的script指向popup.js。
+
+想要rollup生成html，需要用到@rollup/plugin-html。
+```bash
+npm i @rollup/plugin-html -D
+```
+
+由于@rollup/plugin-html插件不支持导入本地文件模板，对应的html模板需要我们自己配置：
+
+```js
+// plugin/html.js
+import { makeHtmlAttributes } from "@rollup/plugin-html";
+
+export const generateHtmlPlugin = (htmlName) => {
+  return {
+    fileName: `${htmlName}.html`,
+    template: ({ attributes, files, publicPath, title }) => {
+      let scripts = [
+        ...(files.js || []).filter((item) => item.name === htmlName),
+      ];
+      scripts = scripts
+        .map(({ fileName }) => {
+          const attrs = makeHtmlAttributes(attributes.script);
+          return `<script src="${publicPath}${fileName}"${attrs}></script>`;
+        })
+        .join("\n");
+      return `<!DOCTYPE html>
+          <html>
+            <head>
+              <title>${title}</title>
+            </head>
+            <body>
+              <div id="app"></div>
+              ${scripts}
+            </body>
+          </html>`;
+    },
+  };
+};
+```
+
+在rollup.config.js中引入插件：
+```js
+// rollup.config.js
+// ...
+import html from "rollup-plugin-generate-html-template";
+import {generateHtmlPlugin} from './plugin/html'
+
+export default {
+  // ...
+  plugins: [
+    // ...
+    html(generateHtmlPlugin('popup')),
+  ]
+}
+```
+
+再次执行`npm run dev`，可以看到生成的打包生成popup.html。
+
+我们在vsCode中安装`Live-Server`插件，然后在本地打开popup.html，可以看到页面无法正常显示，我们打开控制台工具，发现有报错。
+
+![react源码中process报错](./assets/react-sourcecode-commonjs-error.png)
+
+原因是，react源码中是commonjs模块，里面使用了`process.env.NODE_ENV`，然后我们现在是浏览器环境，没有process对象，所以报错。
+
+解决办法也很简单，我们可以把`process.env.NODE_ENV`根据打包环境替换为prod,dev等。
+
+对此我们要安装下`cross-env`，`@rollup/plugin-replace`。
+
+修改下package.json:
+```json
+{
+  "scripts": {
+    "dev": "cross-env NODE_ENV=development rollup -c -w",
+    "build": "cross-env NODE_ENV=production rollup -c"
+  }
+}
+```
+开发生产的的时候设置对应的环境变量。
+
+修改下rollup.config.js
+```js
+// ...
+import replace from '@rollup/plugin-replace';
+
+export default {
+  // ...
+  plugins: [
+    // ...
+    replace({
+      values: {
+        "process.env.NODE_ENV": JSON.stringify(process.env.NODE_ENV),
+      },
+      preventAssignment: true,
+    })
+  ]
+}
+
+```
+
+再次执行`npm run dev`，可以看到页面正常显示了。
+![popup页面](./assets/popup-without-tailwindcss.png)
+
+但这还不行，我们最后要的是一个chrome插件，现在的dist目录中还缺少chrome插件需要的manifest.json文件。
+
+我们的manifest.json文件在public目录下面，要让rollup打包的时候放到dist目录下面。我们使用`rollup-plugin-copy`插件。
+
+```bash
+npm i -D rollup-plugin-copy
+```
+
+```js
+// rollup.config.js
+// ...
+import copy from 'rollup-plugin-copy';
+
+export default {
+  // ...
+  copy({
+    targets: [{ src: "public/**", dest: "dist/" }],
+  }),
+}
+```
+
+再次执行`npm run dev`，可以看到dist目录下面有了manifest.json文件。
+
+但由于manifest.json文件中引用了`content.js`, `options.html`文件，我们还需要将对应的文件打包。
+
+新建src/options/options.tsx
+```js
+import { createRoot } from 'react-dom/client'
+import React from 'react'
+
+function App() { 
+    return <div>
+        hello, options
+    </div>
+}
+
+const root = createRoot(document.getElementById('root')!)
+root.render(<App />)
+```
+
+新建src/content/content.js
+```js
+console.log('content')
+```
+
+rollup中添加`content.js`, `options.html`文件的入口。
+```js
+// rollup.config.js
+export default {
+  // ...
+  input: ['src/popup/popup.tsx', 'src/options/options.tsx', 'src/content/content.js']，
+
+  // ...
+  plugins: [
+     html({
+      ...generateHtmlPlugin("popup"),
+      ...generateHtmlPlugin("options"),
+    })
+  ]
+}
+```
+
+再次允许`npm run dev`，生成dist文件后。使用chrome插件中加载dist目录。
+
+![popup](./assets/chrome-extension-popup.png)
+
+popup 页面已经完成。
+
+我们修改下popup.tsx, 里面添加跳转options.html的逻辑。
+
+```js
+// popup.tsx
+function App() {
+
+    const toSetting = () => {
+        if (chrome.runtime.openOptionsPage) {
+            chrome.runtime.openOptionsPage();
+        } else {
+            window.open(chrome.runtime.getURL('options.html'));
+        }
+    }
+
+    return <div style={{width: '300px', height: '400px'}}>
+        hello, popup
+        <div>
+            <button onClick={toSetting}>设置</button>
+        </div>
+    </div>
+}
+```
+
+等加载完毕后，点击设置跳转到了options.html页面。
+
+![options](./assets/chrome-options.png)
+
+
 
 
 

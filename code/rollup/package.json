@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "rollup --config --watch"
+    "dev": "cross-env NODE_ENV=development rollup --config --watch"
   },
   "keywords": [],
   "author": "",
@@ -17,10 +17,15 @@
     "@babel/preset-react": "^7.22.15",
     "@rollup/plugin-babel": "^6.0.3",
     "@rollup/plugin-commonjs": "^25.0.4",
+    "@rollup/plugin-html": "^1.0.2",
     "@rollup/plugin-node-resolve": "^15.2.1",
+    "@rollup/plugin-replace": "^5.0.2",
     "@rollup/plugin-typescript": "^11.1.4",
     "@types/chrome": "^0.0.246",
+    "cross-env": "^7.0.3",
     "rollup": "^3.29.3",
+    "rollup-plugin-copy": "^3.5.0",
+    "rollup-plugin-generate-html-template": "^1.7.0",
     "tslib": "^2.6.2",
     "typescript": "^5.2.2"
   },

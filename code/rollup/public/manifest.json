@@ -6,9 +6,6 @@
   "action": {
     "default_popup": "popup.html"
   },
-  "icons": {
-    "16": "server.png"
-  },
   "options_page": "options.html",
   "content_scripts": [
     {
