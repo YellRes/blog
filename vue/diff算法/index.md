@@ -23,3 +23,4 @@ node上面有key时候，我们知道哪些真实dom时可以复用的。
    1. 不存在的话随即删除对应的真实dom
 
 关键点：全局变量maxIndex，通过判断当前节点在oldChildren的index和maxIndex的关系。用来判断dom节点位置的移动。
+
