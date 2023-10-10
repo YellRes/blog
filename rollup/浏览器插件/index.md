@@ -311,7 +311,7 @@ export default {
 
 再次允许`npm run dev`，生成dist文件后。使用chrome插件中加载dist目录。
 
-![popup](./assets/chrome-extension-popup.png)
+![popup](./assets/chrome-extension-popover.png)
 
 popup 页面已经完成。
 
