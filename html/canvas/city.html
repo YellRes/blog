@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
+</head>
+<body>
+    <canvas id="canvas" ></canvas>
+
+    <script src="https://d3js.org/d3.v6.min.js"></script>
+    <script type="module">
+    
+        const canvas = document.getElementById('canvas');
+        const context = canvas.getContext('2d');
+        const drawCircle = (x, y, r) => context.arc(x, y, r, 0, 2 * Math.PI);
+        let lastCircle = undefined
+  
+
+        function calculateDistance(x1, y1, x2, y2) {
+            const dx = x2 - x1;
+            const dy = y2 - y1;
+            return Math.sqrt(dx * dx + dy * dy);
+        }
+
+
+        function getRandomColor() {
+            const letters = '0123456789ABCDEF';
+            let color = '#';
+
+            for (let i = 0; i < 6; i++) {
+                color += letters[Math.floor(Math.random() * 16)];
+            }
+
+            return color;
+        }
+
+
+
+        // 获取数据
+        const dataSource = 'https://s5.ssl.qhres2.com/static/b0695e2dd30daa64.json';
+        (
+            async function () { 
+                const width = 1000
+                const height = 1000
+
+                canvas.width = width
+                canvas.height = height
+
+                const data = await (await fetch(dataSource)).json();
+                const regions = d3.hierarchy(data).sum(d => 1).sort((a, b) => b.value - a.value);
+                const pack = d3.pack().size([width, height]).padding(3);
+                const root = pack(regions)
+                
+                const drawCircle = (root) => {
+                    context.beginPath();
+                    context.arc(root.x, root.y, root.r, 0, 2 * Math.PI)
+                    context.stroke();
+                    if (root.children) {
+                        root.children.forEach(drawCircle)
+                    } 
+                 }
+
+                 let rootSet = new WeakSet()
+                 let circle = null
+                 const pointerInOneCircle = (xPos, yPos) => {
+                   
+                    const findCircle = (root) => {
+                        let distance = calculateDistance(xPos, yPos, root.x, root.y)
+
+                        if (!root.children && distance <= root.r) {
+                            circle = root
+                            return 
+                        }
+
+                        if (root.children) {
+                            root.children.forEach(findCircle)
+                        }
+                    }
+                    findCircle(root)
+                    return 
+                 }
+                 document.addEventListener('mousemove', event => {
+                    pointerInOneCircle(event.clientX, event.clientY)
+                    let pointerInCircle = circle
+                    console.log(pointerInCircle)
+                
+                    // if (lastCircle) {
+                    //     const {x, y, r} = lastCircle
+                    //     context.beginPath()
+                    //     context.fillStyle = 'rgba(1, 1, 1, 1)'
+                    //     context.arc(x, y, r, 0, 2 * Math.PI)
+                    //     context.fill()
+                    //     context.closePath()
+                    // }
+                    if (pointerInCircle && pointerInCircle !== lastCircle && !rootSet.has(pointerInCircle)) {
+                        const {x, y, r} = pointerInCircle
+                        context.beginPath()
+                        context.fillStyle = getRandomColor()
+                        context.arc(x, y, r, 0, 2 * Math.PI)
+                        context.fill()
+                        context.closePath()
+                        rootSet.add(pointerInCircle)
+                    }
+
+                    lastCircle = pointerInCircle
+                })
+
+                drawCircle(root)
+            }()
+        );
+    </script>
+</body>
+</html>

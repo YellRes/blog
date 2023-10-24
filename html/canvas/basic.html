@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <canvas id="canvas" width="512" height="512" style="border: 1px solid #ededed;"></canvas>
+
+
+    <script>
+        let canvasDom = document.querySelector('#canvas')
+        let canvasContext = canvasDom.getContext('2d')
+
+        const rectSize = [100, 100]
+        canvasContext.fillStyle = 'red'
+        canvasContext.translate(-.5 * rectSize[0], -.5 * rectSize[1])
+        canvasContext.beginPath()
+        canvasContext.rect(.5 * canvasDom.width, .5 * canvasDom.height, ...rectSize)
+        canvasContext.fill()
+
+    </script>
+</body>
+</html>

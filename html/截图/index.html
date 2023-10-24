@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>屏幕截图示例</title>
+</head>
+<body>
+    <h1>屏幕截图示例</h1>
+    <button id="startCapture">开始截图</button>
+    <button id="takeScreenshot" disabled>截图</button>
+    <div></div>
+    <video id="video" style="height: 400px; width: 300px;" autoplay></video>
+    <canvas id="screenshotCanvas" style="display: none;"></canvas>
+    <img id="screenshotImage" src="" >
+
+    <script>
+        const startCaptureButton = document.getElementById('startCapture');
+        const takeScreenshotButton = document.getElementById('takeScreenshot');
+        const screenshotCanvas = document.getElementById('screenshotCanvas');
+        const screenshotImage = document.getElementById('screenshotImage');
+        const videoDom = document.getElementById('video');
+
+        let mediaStream;
+
+        startCaptureButton.addEventListener('click', async () => {
+            try {
+                mediaStream = await navigator.mediaDevices.getDisplayMedia({ video: { mediaSource: 'screen' } });
+                videoDom.srcObject = mediaStream
+                takeScreenshotButton.disabled = false;
+            } catch (error) {
+                console.error('Error accessing screen capture:', error);
+            }
+        });
+
+        takeScreenshotButton.addEventListener('click', () => {
+            if (mediaStream) {
+                const context = screenshotCanvas.getContext('2d');
+                screenshotCanvas.width = window.innerWidth;
+                screenshotCanvas.height = window.innerHeight;
+                context.drawImage(videoDom, 0, 0, screenshotCanvas.width, screenshotCanvas.height);
+
+                let imgUrl = screenshotCanvas.toDataURL('image/png');
+                screenshotImage.src = imgUrl
+                takeScreenshotButton.disabled = true;
+
+                // 停止屏幕捕捉流
+                mediaStream.getTracks().forEach(track => track.stop());
+                videoDom.srcObject = null;
+            }
+        });
+    </script>
+</body>
+</html>
