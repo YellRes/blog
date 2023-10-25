@@ -86,14 +86,7 @@
                     let pointerInCircle = circle
                     console.log(pointerInCircle)
                 
-                    // if (lastCircle) {
-                    //     const {x, y, r} = lastCircle
-                    //     context.beginPath()
-                    //     context.fillStyle = 'rgba(1, 1, 1, 1)'
-                    //     context.arc(x, y, r, 0, 2 * Math.PI)
-                    //     context.fill()
-                    //     context.closePath()
-                    // }
+              
                     if (pointerInCircle && pointerInCircle !== lastCircle && !rootSet.has(pointerInCircle)) {
                         const {x, y, r} = pointerInCircle
                         context.beginPath()
