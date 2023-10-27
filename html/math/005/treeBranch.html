@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>treeBranch</title>
+</head>
+<body>
+    <canvas width="600" height="600" id="canvas" style="border: 1px solid #ededed;"></canvas>
+    <script type="module">
+        import { Vector2D } from './Vector.js'
+
+        let canvasDom = document.getElementById('canvas');
+        let ctx = canvasDom.getContext('2d');
+
+        let { width, height } = canvasDom
+        ctx.translate(width / 2, height)
+        ctx.scale(1, -1)
+
+        function drawBranch(context, v0, length, thickness, dir, bias) {
+            const v = new Vector2D(1, 0).rotate(dir * bias).scale(length)
+            const v1 = v.add(v0)
+
+            context.beginPath()
+            context.lineWidth = thickness
+            context.moveTo(...v0)    
+            context.lineTo(v1.x, v1.y)
+            context.stroke()
+
+            if (thickness > 2) {
+                const left = Math.PI / 4 + 0.5 * (dir + 0.2) + bias * (Math.random() - 0.5);
+                drawBranch(context, v1, length * 0.9, thickness * 0.8, left, bias * .9); 
+                const right = Math.PI / 4 + 0.5 * (dir - 0.2) + bias * (Math.random() - 0.5);
+                drawBranch(context, v1, length * 0.9, thickness * 0.8, right, bias * .9);
+            }
+        }
+
+
+        drawBranch(ctx, new Vector2D(0, 0), 50, 10, 1, 3)
+        
+    </script>
+
+
+
+</body>
+</html>

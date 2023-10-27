@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>city in svg</title>
+</head>
+<body>
+
+    <svg xmlns="http://www.w3.org/2000/svg" version="1.1"" width="800" height="800" viewBox="0 0 1600 1600" >
+        <span id="title"></span>
+    </svg>
+
+    <script src="https://d3js.org/d3.v6.min.js" ></script>
+    <script>
+        const svgRoot = document.querySelector('svg')
+
+        const dataSource = 'https://s5.ssl.qhres2.com/static/b0695e2dd30daa64.json';
+        async function getData() {
+            const data = await (await fetch(dataSource)).json();
+            const regions = d3.hierarchy(data).sum(d => 1).sort((a, b) => b.value - a.value);
+            const pack = d3.pack().size([1600, 1600]).padding(3);
+            const root = pack(regions)
+
+            return root
+        }
+
+        fillStyle = 'rgba(0, 0, 0, .2)', textColor = 'white'
+
+        function draw(parent, data) {
+            const {x, y, r} = data
+            const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle')
+            circle.setAttribute('cx', x)
+            circle.setAttribute('cy', y)
+            circle.setAttribute('r', r)
+            circle.setAttribute('fill', fillStyle)
+            circle.setAttribute('data-name', data.data.name)
+            parent.appendChild(circle)
+
+            if (data.children) {
+                const group = document.createElementNS('http://www.w3.org/2000/svg', 'g')
+                group.setAttribute('data-name', data.data.name)
+                data.children.forEach(child => draw(group, child))
+                parent.appendChild(group)
+            } else {
+                const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                text.setAttribute('fill', textColor);
+                text.setAttribute('font-family', 'Arial');
+                text.setAttribute('font-size', '1.5rem');
+                text.setAttribute('text-anchor', 'middle');
+                text.setAttribute('x', x);
+                text.setAttribute('y', y);
+                const name = data.data.name;
+                text.textContent = name;
+                parent.appendChild(text);
+            }
+        }
+        async function init() {
+            let data = await getData()
+            draw(svgRoot, data)
+        }
+
+        // 点击事件
+        let activeTarget = null
+        svgRoot.addEventListener('mousemove', event => {
+            let target = event.target
+            if (target.tagName === 'text') {
+                target = target.parentNode
+            }
+            if (activeTarget !== target) {
+                if (activeTarget) activeTarget.setAttribute('fill', 'rgba(0, 0, 0, .2)')
+            }
+
+            target.setAttribute('fill', 'rgba(0, 128, 0, .1)')
+            titleEl.textContent = getTitle(target)
+            activeTarget = target
+        })
+
+        const titleEl = document.getElementById('title');
+        function getTitle(target) {
+            const name = target.getAttribute('data-name');
+            if(target.parentNode && target.parentNode.nodeName === 'g') {
+                const parentName = target.parentNode.getAttribute('data-name');
+                return `${parentName}-${name}`;
+            }
+            return name;
+        }
+
+        init()
+    </script>
+
+</body>
+</html>
