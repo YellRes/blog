@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    
+    <canvas width="500" height="500" style="border: 1px solid #1890ff;"></canvas>
+
+
+    <script type="module">
+       
+        import bignumberJs from 'https://cdn.jsdelivr.net/npm/bignumber.js@9.1.2/+esm'
+        import { Vector2D } from './vector.js'
+
+        console.log(bignumberJs(Math.cos(Math.PI * .5)), 'bignumberJs(Math.cos(Math.PI * .5))')
+        console.log(bignumberJs(Math.cos(Math.PI * .5)).eq(0), 'sdfasfs')
+        console.log(bignumberJs(-0).eq(0))
+
+        function regularShape(edges = 3, x, y, step) {
+            const ret = []
+            const delta = Math.PI * (1 - (edges - 2) / edges)
+            let p = new Vector2D(x, y)
+            let dir = new Vector2D(step, 0)
+
+            ret.push(p)
+            for (let i = 0; i < edges - 1; i++) {
+                const pCopy = p.copy()
+                p = pCopy.add(dir)
+                dir.rotate(delta)
+                ret.push(p)
+            }
+
+            return ret
+        }
+
+        async function draw(vectorArr) {
+            const edges = vectorArr.length
+            const delta = Math.PI * (1 - (edges - 2) / edges)
+            let i = 0
+            for (let item of vectorArr) {
+
+                await (new Promise(res => {
+                    window.requestAnimationFrame(() => drawPiece(item, i == vectorArr.length - 1 ? vectorArr[0] : vectorArr[i + 1], i , delta, res))
+                }))
+                i++
+            }
+        }
+
+        // 部分绘制
+        let lastPoint = null
+        let step = 5
+        function drawPiece(startPoint, endPoint, index, delta, res) {
+       
+            // 到达最终位置停止
+            const [startX, startY] = startPoint
+            const [endX, endY] = endPoint
+
+            if (parseFloat(Math.cos(delta * index).toFixed(10)) > 0) {
+                if (startX >= endX) return res(true)
+            } else if (parseFloat(Math.cos(delta * index).toFixed(10)) == 0){
+                if (Math.sin(delta * index) == 1) {
+                    if (startY >= endY) return res(true)
+                } else {
+                    if (startY <= endY) return res(true)
+                }
+            } else if (parseFloat(Math.cos(delta * index).toFixed(10))  < 0) {
+                if (startX <= endX) return res(true)
+            }
+
+            // 找到旋转的基本向量
+            const dir = new Vector2D(step, 0)
+           
+            let copyIndex = index
+            while (copyIndex) {
+                dir.rotate(delta)
+                copyIndex--
+            }
+
+            const nextPoint = startPoint.copy().add(dir)
+            const [dirX, dirY] = nextPoint
+            ctx.beginPath()
+            ctx.moveTo(startX, startY)
+            ctx.lineTo(dirX, dirY)
+            ctx.stroke()
+            ctx.closePath()
+
+            window.requestAnimationFrame(() => drawPiece(nextPoint, endPoint, index, delta, res))
+        }
+
+        const canvas = document.querySelector('canvas')
+        const ctx = canvas.getContext('2d')
+        ctx.translate(0, canvas.height)
+        ctx.scale(1, -1)
+
+        draw(regularShape(3, 0, 0, 50))
+        draw(regularShape(4, 50, 0, 50))
+        draw(regularShape(5, 100, 0, 50))
+        draw(regularShape(6, 150, 0, 50))
+        draw(regularShape(7, 200, 0, 50))
+        draw(regularShape(8, 250, 0, 50))
+        draw(regularShape(9, 300, 0, 50))
+        draw(regularShape(10, 350, 0, 50))
+
+
+
+    </script>
+</body>
+</html>
+
+
