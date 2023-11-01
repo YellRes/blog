@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <canvas id="canvas" width="600" height="600"></canvas>
+
+    <script type="module">
+        import Ball from '../movingball/ball.js'
+        let canvas = document.getElementById('canvas');
+        let ctx = canvas.getContext('2d');
+
+        const X_SPEED = 5
+        let ball = new Ball(200, 200, 50, X_SPEED, 0)
+        
+        let xPos = 0
+        function moveBall() {
+            ctx.beginPath();
+            ctx.clearRect(0, 0, canvas.width, canvas.height)
+            let currentPos = xPos + X_SPEED
+
+            ball.x = currentPos
+            ball.y = Math.pow(currentPos, 2) - Math.pow(xPos, 2)
+
+            ctx.arc(ball.x, ball.y, 20, 0, Math.PI * 2);
+            ctx.stroke();
+         
+            xPos = currentPos
+            window.requestAnimationFrame(moveBall)
+        }
+
+        window.requestAnimationFrame(moveBall)
+
+
+    </script>
+</body>
+</html>

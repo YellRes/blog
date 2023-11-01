@@ -48,6 +48,10 @@
     - 此时oldChildren遍历完毕，newChildren没有遍历完毕。说明此时newChildren里面的dom要新增，操作很简单，新增[newStartIdx, newEndIdx]数据即可
 
 
+### 使用index作为key？
+相同type的vnode，key相同。我们会对vnode进行patch
+
+
 
 
 

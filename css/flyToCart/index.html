@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
+    <style>
+        #ball {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            /* border: 1px solid #1890ff; */
+            position: absolute;
+            transition: transform 1s;
+            transition-timing-function: linear;
+            /* animation: moveToCartY 1s infinite; */
+        }
+
+        #ball, #ballInner {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            /* border: 1px solid #1890ff; */
+            transition: transform .5s;
+        }
+
+        #ballInner { 
+            transition-timing-function: cubic-bezier(.36,-0.01,.99,.59);
+            border: 1px solid #1890ff;
+
+            /* animation: moveToCartX 1s infinite; */
+        }
+
+        #cart {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            position: absolute;
+            bottom: 0;
+            right: 0;
+        }
+
+
+        @keyframes moveToCartX {
+            0% {
+                transform: translateX(0);
+            }
+
+            100% {
+                transform: translateX(500px);
+            }
+        }
+
+        @keyframes moveToCartY {
+            0% {
+                transform: translateY(0);
+            }
+
+            100% {
+                transform: translateY(500px);
+            }
+        }
+
+
+    </style>
+</head>
+<body>
+    <div style="width: 600px; height: 600px; border: 1px solid #ededed; position: relative;">
+        <div id="ball">
+            <div id="ballInner"></div>
+        </div>
+        <div id="cart">购物车</div>
+    </div>
+
+    <button id="start">开始</button>
+
+    <script>
+        const ballDom = document.querySelector('#ball')
+        const cartDom = document.querySelector('#cart')
+        const ballInnerDom = document.querySelector('#ballInner') 
+        const btn = document.querySelector('#start')
+
+        function moveBall() {
+            console.log('dsf')
+            debugger
+            ballDom.style.display = 'block';
+        
+            ballDom.style.transform = 'translateX(500px)';
+            ballDom.style.transform = 'translateY(500px)';
+            console.log('dsf')
+        }
+      
+        btn.addEventListener('click', function() {
+            console.log('dsf')
+            ballDom.style.display = 'block';
+            // ballDom.style.top = '500px'
+            // ballDom.style.left = '500px'
+            ballDom.style.transform = 'translateX(500px)';
+            ballInnerDom.style.transform = 'translateY(500px)';
+            console.log('dsf')
+        })       
+    </script>
+
+</body>
+</html>
