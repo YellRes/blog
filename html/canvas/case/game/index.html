@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <canvas width="500" height="500" style="border: 1px solid #ededed;"></canvas>
+    <button id="btn">清除</button>
+    <script type="module">
+        import Block from './block.js'
+        import Ring from './ring.js'
+        const canvas = document.querySelector('canvas');
+        const ctx = canvas.getContext('2d');
+        // const btn = document.querySelector('#btn')
+
+        // btn.addEventListener('click', () => {
+        //     ctx.save()
+        // ctx.clearRect(0, 0, 500, 500)
+        // ctx.restore()
+        // })
+
+        const block = new Block({
+            x: 250,
+            y: 250,
+        })
+
+        // Math.PI [0, Math.PI / 2]
+        let ROTATION_RADIUS = 1 * Math.PI / 180
+        let flag = true
+        let x = ROTATION_RADIUS
+        // 90 度 Math.asin(Math.abs(Math.sin(x += ROTATION_RADIUS )))
+        // 120度 Math.asin(Math.abs(Math.sin(x += ROTATION_RADIUS ))) * 4 / 3
+        const rotateBlock = () => {
+            x += ROTATION_RADIUS
+            block.rotation = Math.asin(Math.abs(Math.sin(x))) 
+            block.draw(ctx)
+            window.requestAnimationFrame(rotateBlock)
+        }
+
+        // window.requestAnimationFrame(rotateBlock)
+
+
+        const ring = new Ring({
+            x: 250,
+            y: 250,
+            rings: [
+                {
+                    rate: .25
+                },
+                {
+                    rate: .5
+                },
+                {
+                    rate: .2
+                },
+                {
+                    rate: .05
+                }
+            ]
+        })
+        ring.draw(ctx)
+
+       
+
+    </script>
+</body>
+</html>
