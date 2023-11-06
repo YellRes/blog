@@ -16,10 +16,7 @@ class Ring {
 
     let sumRate = 0;
     for (let i = 0; i < this.rings.length; i++) {
-      // const x = this.r * Math.cos((sumRate + this.rings[i].rate) * Math.PI * 2);
-      // const y = this.r * Math.sin((sumRate + this.rings[i].rate) * Math.PI * 2);
       ctx.beginPath();
-
       ctx.moveTo(0, 0);
       ctx.arc(
         0,
@@ -30,7 +27,17 @@ class Ring {
       );
       sumRate += this.rings[i].rate;
 
-      ctx.fillStyle = getRandomColor();
+      if (this.rings[i].target) {
+        ctx.font = "40px";
+        ctx.fillStyle = "black";
+        ctx.fillText(
+          "<-目标",
+          this.r * Math.cos((this.rings[i].rate / 2) * Math.PI * 2),
+          -this.r * Math.sin((this.rings[i].rate / 2) * Math.PI * 2)
+        );
+      }
+      ctx.fillStyle = this.rings[i].color || getRandomColor();
+
       ctx.fill();
       ctx.closePath();
     }

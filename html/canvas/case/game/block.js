@@ -16,7 +16,7 @@ class Block {
 
     context.beginPath();
     context.moveTo(0, 0);
-    context.lineTo(100, 0);
+    context.lineTo(45, 0);
     context.closePath();
     context.fill();
     context.stroke();

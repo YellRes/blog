@@ -4,44 +4,47 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+
+    <style>
+        #stage {
+            width: 500px;
+            height: 500px;
+            position: relative;
+            border: 2px solid black;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        canvas {
+            position: absolute
+        }
+    </style>
 </head>
 <body>
-    <canvas width="500" height="500" style="border: 1px solid #ededed;"></canvas>
-    <button id="btn">清除</button>
+    <div id="stage">
+        <canvas width="500" height="500" id="bg" ></canvas>
+        <canvas width="500" height="500" id="block"></canvas>
+    </div>
+ 
     <script type="module">
         import Block from './block.js'
         import Ring from './ring.js'
-        const canvas = document.querySelector('canvas');
+        import Game from './game.js'
+        const canvas = document.querySelector('#bg');
         const ctx = canvas.getContext('2d');
-        // const btn = document.querySelector('#btn')
 
-        // btn.addEventListener('click', () => {
-        //     ctx.save()
-        // ctx.clearRect(0, 0, 500, 500)
-        // ctx.restore()
-        // })
+        const canvasBlock = document.querySelector('#block');
+        const ctxBlock = canvasBlock.getContext('2d');
 
         const block = new Block({
             x: 250,
             y: 250,
         })
+        const game = new Game(1)
 
-        // Math.PI [0, Math.PI / 2]
-        let ROTATION_RADIUS = 1 * Math.PI / 180
-        let flag = true
-        let x = ROTATION_RADIUS
-        // 90 度 Math.asin(Math.abs(Math.sin(x += ROTATION_RADIUS )))
-        // 120度 Math.asin(Math.abs(Math.sin(x += ROTATION_RADIUS ))) * 4 / 3
-        const rotateBlock = () => {
-            x += ROTATION_RADIUS
-            block.rotation = Math.asin(Math.abs(Math.sin(x))) 
-            block.draw(ctx)
-            window.requestAnimationFrame(rotateBlock)
-        }
-
-        // window.requestAnimationFrame(rotateBlock)
-
-
+        /**
+         * ring
+        */
         const ring = new Ring({
             x: 250,
             y: 250,
@@ -56,13 +59,63 @@
                     rate: .2
                 },
                 {
-                    rate: .05
+                    rate: .05,
+                    color: 'red',
+                    target: true
                 }
             ]
         })
         ring.draw(ctx)
 
-       
+        /**
+         * block
+         * */        
+        // Math.PI [0, Math.PI / 2]
+        let animationFrameId = ''
+        let ROTATION_RADIUS = (1 * Math.PI / 180) * game.level
+        let x = ROTATION_RADIUS
+
+        const initBlock = () => {
+            // 90 度 Math.asin(Math.abs(Math.sin(x += ROTATION_RADIUS )))
+            // 120度 Math.asin(Math.abs(Math.sin(x += ROTATION_RADIUS ))) * 4 / 3
+            if (animationFrameId) return
+            const rotateBlock = () => {
+                x += ROTATION_RADIUS
+                block.rotation = x % (Math.PI * 2)
+                block.draw(ctxBlock)
+                animationFrameId = window.requestAnimationFrame(rotateBlock)
+            }
+            animationFrameId = window.requestAnimationFrame(rotateBlock)
+
+            return () => {
+                cancelAnimationFrame(animationFrameId)
+                animationFrameId = ''
+            }
+        }
+        const cancelAnimate = initBlock()
+        // initRing()
+       /**
+        * 全局事件
+       */
+      document.addEventListener('keydown', (event) => {
+        const key = event.key
+  
+        if (key === ' ') {
+            cancelAnimate()
+            // 判断位置
+            const { rate } = ring.rings[3]
+            if (
+                block.rotation % (Math.PI * 2) > Math.PI * 2 * (1 - rate) 
+                && (block.rotation % (Math.PI * 2) < Math.PI * 2)
+            ) {
+                alert('命中')
+            } else {
+                alert('未命中, 按Enter可重试')
+            }
+        } else if (key === 'Enter') {
+            initBlock()
+        }
+      })
 
     </script>
 </body>
