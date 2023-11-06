@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>clock instance</title>
+
+    <style>
+        #stage {
+            position: relative;
+            width: 600px;
+            height: 600px;
+            
+            margin: 0 auto;
+            overflow: hidden;
+            border: 1px solid #2d6da8
+        }
+
+        canvas {
+            position: absolute;
+        }
+    </style>
+</head>
+<body>
+    <div id="stage">
+        <canvas width="600" height="600"  id="container"></canvas>
+        <canvas width="600" height="600"  id="pointer"></canvas>
+    </div>
+    <script src="./index.js"></script>
+</body>
+</html>
