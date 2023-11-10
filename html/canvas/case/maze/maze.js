@@ -83,4 +83,4 @@ function linkMaze(maze) {
 
 linkMaze(maze);
 
-console.log(maze);
+export default maze;
