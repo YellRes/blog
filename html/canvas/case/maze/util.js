@@ -7,13 +7,13 @@ function getAllPoint(mazeItem, gridItem) {
 
   for (let i = 0; i < mazeItem.length - 1; i++) {
     let degree = (Math.PI / 2) * i;
-    pointArr.push(
-      originX + Math.sin(degree) * width,
-      originY + Math.cos(degree) * width
-    );
+    pointArr.push([
+      originX + Math.floor(Math.sin(degree)) * width,
+      originY + Math.floor(Math.cos(degree)) * width,
+    ]);
   }
 
-  pointArr.push(originX, originY);
+  pointArr.push([originX, originY]);
 
   return pointArr;
 }

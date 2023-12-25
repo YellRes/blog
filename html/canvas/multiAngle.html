@@ -92,8 +92,9 @@
 
         const canvas = document.querySelector('canvas')
         const ctx = canvas.getContext('2d')
-        ctx.translate(0, canvas.height)
+        ctx.translate(canvas.width * .5, canvas.height * .5)
         ctx.scale(1, -1)
+        // ctx.rotate(Math.PI * .5)
 
         draw(regularShape(3, 0, 0, 50))
         draw(regularShape(4, 50, 0, 50))

@@ -1,0 +1,15 @@
+{
+  "name": "circular-imports",
+  "version": "1.0.0",
+  "description": "",
+  "main": "a.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "webpack": "webpack",
+    "vite": "vite"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
