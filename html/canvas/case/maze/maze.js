@@ -1,20 +1,11 @@
+import { Union } from './util.js'
+
 function twoDimensionalArr(width, height) {
   let arr = [];
   for (let i = 0; i < width; i++) {
     let innerArr = [];
     for (let j = 0; j < height; j++) {
-      // 设置代理x, y
-      let direction = new Proxy([], {
-        get(target, property) {
-          if (property === "x") return i;
-          if (property === "y") return j;
-          return target[property];
-        },
-      });
-      for (let k = 0; k < 4; k++) {
-        direction.push(true);
-      }
-      innerArr.push(direction);
+      innerArr.push(0);
     }
     arr.push(innerArr);
   }
@@ -22,65 +13,76 @@ function twoDimensionalArr(width, height) {
   return arr;
 }
 // 构建 - 初始化
-const maze = twoDimensionalArr(3, 4);
+// const maze = twoDimensionalArr(3, 4);
 
-function getRandomSide(x, y, maxXIndex, maxYIndex) {
-  if (x + 1 <= maxXIndex && !maze[x + 1][y].isGet) {
-    maze[x + 1][y][1] = false;
-    return maze[x + 1][y];
+class Maze {
+  constructor(column, row, canvas) {
+    this.row = row
+    this.column = column
+    this.cells = column * row
+    this.cellArr = twoDimensionalArr(column, row)
+    this.linkedMap = new Map()
+    this.union = new Union(this.cells)
+    this.ctx = canvas
   }
 
-  if (x - 1 >= 0 && !maze[x - 1][y].isGet) {
-    maze[x - 1][y][3] = false;
-    return maze[x - 1][y];
-  }
-
-  if (y + 1 <= maxYIndex && !maze[x][y + 1].isGet) {
-    maze[x][y + 1][2] = false;
-    return maze[x][y + 1];
-  }
-
-  if (y - 1 >= 0 && !maze[x][y - 1].isGet) {
-    maze[x][y - 1][0] = false;
-    return maze[x][y - 1];
-  }
-
-  return false;
-}
-
-function linkMaze(maze) {
-  const entryPoint = maze[0][0];
-  // const outputPoint = maze[maze.length - 1][maze[0].length - 1];
-  const _getRandomSide = (x, y) =>
-    getRandomSide(x, y, maze.length - 1, maze[0].length - 1);
-  let totalNum = maze.length * maze[0].length;
-
-  let stack = [];
-
-  stack.push(entryPoint);
-  entryPoint.isGet = true;
-  totalNum--;
-
-  while (stack.length || totalNum) {
-    const { x, y } = stack[stack.length - 1];
-
-    const nextGridItem = getRandomSide(
-      x,
-      y,
-      maze.length - 1,
-      maze[0].length - 1
-    );
-
-    if (nextGridItem) {
-      nextGridItem.isGet = true;
-      stack.push(nextGridItem);
-      totalNum--;
-    } else {
-      stack.pop();
+  /**
+   * 初始化迷宫 打通迷宫的墙
+   * */ 
+  init() {
+    while(!this.isEntryLinkedOutPut()) {
+      const [preCell, nextCell] = this.getRandomTwoCells()
+      console.log(preCell, nextCell)
+      if (!this.union.sameRoot(preCell, nextCell)) {
+        this.union.unionElement(preCell, nextCell)
+        this.addLinkedMap(preCell, nextCell)
+      }
     }
   }
+
+  /**
+   * 起点和终点相通
+  */
+  isEntryLinkedOutPut() {
+    return this.union.sameRoot(0, this.cells - 1)
+  }
+
+  /**
+   * 任取两个随机相连的格子
+  */
+ getRandomTwoCells() {
+  const currentCell = Math.floor(Math.random() * this.cells)
+  const row = Math.floor(currentCell / this.column) 
+  const column = currentCell % this.column
+  const sidingCell = []
+
+  // if (row + 1 < this.row) sidingCell.push(this.cellArr[row + 1][column])
+  if (row + 1 < this.row) sidingCell.push((row + 1) * this.row + column)
+  if (row - 1 >= 0) sidingCell.push((row - 1) * this.row + column)
+  if (column - 1 >= 0) sidingCell.push(row * this.row + column - 1)
+  if (column + 1 < this.column) sidingCell.push(row * this.row + column + 1)
+
+  const randomCellIndex = Math.floor(Math.random() * sidingCell.length)
+  return [row * this.row + column, sidingCell[randomCellIndex]]
+ }
+
+ /**
+  * linkMap
+ */
+ addLinkedMap(preCell, nextCell) {
+   this.linkedMap.set(preCell, this.linkedMap.get(preCell) || []) 
+   this.linkedMap.set(nextCell, this.linkedMap.get(nextCell) || []) 
+
+   if (!this.linkedMap.get(preCell).includes(nextCell)) {
+    this.linkedMap.get(preCell).push(nextCell)
+   }
+
+   if (!this.linkedMap.get(nextCell).includes(preCell)) {
+    this.linkedMap.get(nextCell).push(preCell)
+   }
+ }
+
 }
 
-linkMaze(maze);
 
-export default maze;
+export default Maze;

@@ -7,11 +7,24 @@
     <style>
         canvas {
             border: 1px solid #1890ff;
+            position: absolute;
+            top: 0;
+            left: 0;
+
         }
+
+        .container {
+            position: relative;
+        }
+
+
     </style>
 </head>
 <body>
-    <canvas width="600px" height="600px" id="mazeDom"></canvas>
+    <div class="container">
+        <canvas width="600px" height="600px" id="mazeDom"></canvas>
+        <canvas width="600px" height="600px" id="userPath"></canvas>
+    </div>
 
     <script src="./canvas.js" type="module"></script>
 </body>
