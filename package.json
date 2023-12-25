@@ -1,3 +1,9 @@
 {
-    
+    "dependencies": {
+        "vite": "^5.0.10"
+    },
+    "devDependencies": {
+        "webpack": "^5.89.0",
+        "webpack-cli": "^5.1.4"
+    }
 }

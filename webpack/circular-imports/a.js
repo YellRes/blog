@@ -1,5 +1,3 @@
-import { b } from './b'
+import b from './b.js'
  
-console.log(b, 'a use b')
-console.log('a');
-export const a = 'a'
+export default b
