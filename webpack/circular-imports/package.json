@@ -7,12 +7,18 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "webpack": "webpack",
-    "vite": "vite"
+    "vite": "vite",
+    "debug": "node --inspect --inspect-brk D:/yellres/sourceCode/officialVite/vite/packages/vite/bin/vite.js"
+
+
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "html-webpack-plugin": "^5.6.0"
+    "html-webpack-plugin": "^5.6.0",
+    "vite": "^4.0.0",
+    "webpack": "^5.89.0",
+    "webpack-cli": "^5.1.4"
   }
 }

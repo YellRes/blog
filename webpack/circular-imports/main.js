@@ -1,3 +1,8 @@
 import a from './a.js';
-console.log(a, 'main use a');
-console.log('main');
+
+export function handleClick() { 
+    console.log(a, 'clicked')
+}
+if (import.meta.hot) { 
+    import.meta.hot.accept();
+}
