@@ -1,6 +1,6 @@
 import b from './b.js'
-// console.log(b)
+console.log(b)
 
-const a = 'aaaaaaa'
+const a = 'aaaaaaaaa'
 // console.log(b)
 export default a

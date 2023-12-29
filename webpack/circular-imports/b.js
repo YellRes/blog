@@ -1,6 +1,6 @@
-import c from './c'
+import c from './c.js'
 // console.log('a', a)
-export default 344531
+export default 'moduleB'
 
 if (import.meta.hot) { 
     import.meta.hot.accept();

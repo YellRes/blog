@@ -5,7 +5,7 @@ import { fileURLToPath } from 'url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export default {
-    entry: './main.js',
+    entry: './webpack/main.cjs',
     mode: 'development',
     output: {
         path: path.join(__dirname, 'dist'),

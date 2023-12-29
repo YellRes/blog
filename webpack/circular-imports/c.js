@@ -1,6 +1,6 @@
-import a from '/a'
+import a from './a.js'
 
-const c = 'ccc'
+const c = 'ccccv'
 
 function render() { 
     console.log(a, 'clicked')
