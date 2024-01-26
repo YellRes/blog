@@ -1,5 +1,8 @@
 {
+    "type": "module",
     "dependencies": {
+        "co": "^4.6.0",
+        "node-fetch": "^3.3.2",
         "vite": "^5.0.10"
     },
     "devDependencies": {
